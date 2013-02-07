@@ -21,3 +21,9 @@
 @property (nonatomic, assign) CGFloat itemWidth; // Width for every column
 @property (nonatomic, assign) UIEdgeInsets sectionInset; // The margins used to lay out content in a section
 @end
+
+@interface UICollectionViewWaterfallLayoutAttributes : PSUICollectionViewLayoutAttributes
+
+@property (nonatomic, assign) NSUInteger columnIndex;
+
+@end
