@@ -6,6 +6,7 @@
 //
 
 #import "UICollectionViewWaterfallLayout.h"
+#import "YapCollectionViewWaterfallLayoutAttributes.h"
 
 @interface UICollectionViewWaterfallLayout()
 @property (nonatomic, assign) NSInteger itemCount;
@@ -95,9 +96,10 @@
         CGFloat xOffset = _sectionInset.left + (_itemWidth + _interitemSpacing) * columnIndex;
         CGFloat yOffset = [(_columnHeights[columnIndex]) floatValue];
 
-        PSUICollectionViewLayoutAttributes *attributes =
-        [PSUICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+        YapCollectionViewWaterfallLayoutAttributes *attributes =
+        [YapCollectionViewWaterfallLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
         attributes.frame = CGRectMake(xOffset, yOffset, self.itemWidth, itemHeight);
+        attributes.columnIndex = columnIndex;
         [_itemAttributes addObject:attributes];
         _columnHeights[columnIndex] = @(yOffset + itemHeight + _interitemSpacing);
     }
