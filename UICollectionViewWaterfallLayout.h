@@ -9,10 +9,10 @@
 #import "PSTCollectionView.h"
 
 @class UICollectionViewWaterfallLayout;
+
 @protocol UICollectionViewDelegateWaterfallLayout <PSUICollectionViewDelegate>
-- (CGFloat)collectionView:(PSTCollectionView *)collectionView
-                   layout:(UICollectionViewWaterfallLayout *)collectionViewLayout
- heightForItemAtIndexPath:(NSIndexPath *)indexPath;
+@required
+- (CGFloat)collectionView:(PSTCollectionView *)collectionView layout:(UICollectionViewWaterfallLayout *)collectionViewLayout heightForItemAtIndexPath:(NSIndexPath *)indexPath;
 @end
 
 @interface UICollectionViewWaterfallLayout : PSUICollectionViewLayout
@@ -20,6 +20,8 @@
 @property (nonatomic, assign) NSUInteger columnCount; // How many columns
 @property (nonatomic, assign) CGFloat itemWidth; // Width for every column
 @property (nonatomic, assign) UIEdgeInsets sectionInset; // The margins used to lay out content in a section
+@property (nonatomic) CGFloat headerHeight;
+@property (nonatomic) CGFloat footerHeight;
 @end
 
 @interface UICollectionViewWaterfallLayoutAttributes : PSUICollectionViewLayoutAttributes

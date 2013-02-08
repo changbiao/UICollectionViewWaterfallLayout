@@ -7,11 +7,13 @@
 
 #import "UICollectionViewWaterfallLayout.h"
 
+static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElementKindCell";
+
 @interface UICollectionViewWaterfallLayout()
 @property (nonatomic, assign) NSInteger itemCount;
 @property (nonatomic, assign) CGFloat interitemSpacing;
 @property (nonatomic, strong) NSMutableArray *columnHeights; // height for each column
-@property (nonatomic, strong) NSMutableArray *itemAttributes; // attributes for each item
+@property (nonatomic, strong) NSDictionary *layoutInfo;
 @end
 
 @implementation UICollectionViewWaterfallLayoutAttributes
@@ -49,12 +51,28 @@
     }
 }
 
+- (void)setFooterHeight:(CGFloat)footerHeight {
+    if (_footerHeight != footerHeight) {
+        _footerHeight = footerHeight;
+        [self invalidateLayout];
+    }
+}
+
+- (void)setHeaderHeight:(CGFloat)headerHeight {
+    if (_headerHeight != headerHeight) {
+        _headerHeight = headerHeight;
+        [self invalidateLayout];
+    }
+}
+
 #pragma mark - Init
 - (void)commonInit
 {
     _columnCount = 2;
     _itemWidth = 140.0f;
     _sectionInset = UIEdgeInsetsZero;
+    _headerHeight = 0.0f;
+    _footerHeight = 0.0f;
 }
 
 - (id)init
@@ -72,8 +90,7 @@
     [_columnHeights removeAllObjects];
     _columnHeights = nil;
 
-    [_itemAttributes removeAllObjects];
-    _itemAttributes = nil;
+    _layoutInfo = nil;
 }
 
 #pragma mark - Methods to Override
@@ -82,12 +99,16 @@
     [super prepareLayout];
 
     _itemCount = [[self collectionView] numberOfItemsInSection:0];
+    
+    NSMutableDictionary *newLayoutInfo = [NSMutableDictionary dictionary];
+    NSMutableDictionary *cellLayoutAttributes = [NSMutableDictionary dictionary];
+    NSMutableDictionary *headerLayoutAttributes = [NSMutableDictionary dictionary];
+    NSMutableDictionary *footerLayoutAttributes = [NSMutableDictionary dictionary];
 
     NSAssert(_columnCount > 1, @"columnCount for UICollectionViewWaterfallLayout should be greater than 1.");
     CGFloat width = self.collectionView.frame.size.width - _sectionInset.left - _sectionInset.right;
     _interitemSpacing = floorf((width - _columnCount * _itemWidth) / (_columnCount - 1));
 
-    _itemAttributes = [NSMutableArray arrayWithCapacity:_itemCount];
     _columnHeights = [NSMutableArray arrayWithCapacity:_columnCount];
     for (NSInteger idx = 0; idx < _columnCount; idx++) {
         [_columnHeights addObject:@(_sectionInset.top)];
@@ -101,15 +122,52 @@
                                   heightForItemAtIndexPath:indexPath];
         NSUInteger columnIndex = [self shortestColumnIndex];
         CGFloat xOffset = _sectionInset.left + (_itemWidth + _interitemSpacing) * columnIndex;
-        CGFloat yOffset = [(_columnHeights[columnIndex]) floatValue];
 
-        UICollectionViewWaterfallLayoutAttributes *attributes =
-        [UICollectionViewWaterfallLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+        CGFloat yOffset = [(_columnHeights[columnIndex]) floatValue];
+        if (indexPath.item == 0 || indexPath.item == 1) {
+            yOffset += _headerHeight;
+        }
+        
+        UICollectionViewWaterfallLayoutAttributes *attributes = [UICollectionViewWaterfallLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+        
         attributes.frame = CGRectMake(xOffset, yOffset, self.itemWidth, itemHeight);
         attributes.columnIndex = columnIndex;
-        [_itemAttributes addObject:attributes];
+        
+        cellLayoutAttributes[indexPath] = attributes;
         _columnHeights[columnIndex] = @(yOffset + itemHeight + _interitemSpacing);
+
+        // This is the header
+        if (indexPath.item == 0) {
+            PSUICollectionViewLayoutAttributes *headerAttributes = [PSUICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:PSTCollectionElementKindSectionHeader withIndexPath:indexPath];
+            
+            headerAttributes.frame = (CGRect) {
+                0.0,
+                0.0,
+                self.collectionViewContentSize.width,
+                _headerHeight
+            };
+            headerLayoutAttributes[indexPath] = headerAttributes;
+        }
+        
+        // This is the footer
+        if (indexPath.item == _itemCount - 1) {
+            PSUICollectionViewLayoutAttributes *footerAttributes = [PSUICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:PSTCollectionElementKindSectionFooter withIndexPath:indexPath];
+            
+            footerAttributes.frame = (CGRect) {
+                0.0,
+                self.collectionViewContentSize.height - (_footerHeight * 2),
+                self.collectionViewContentSize.width,
+                _footerHeight
+            };
+            footerLayoutAttributes[indexPath] = footerAttributes;
+        }
     }
+    
+    newLayoutInfo[WaterfallLayoutElementKindCell] = cellLayoutAttributes;
+    newLayoutInfo[PSTCollectionElementKindSectionHeader] = headerLayoutAttributes;
+    newLayoutInfo[PSTCollectionElementKindSectionFooter] = footerLayoutAttributes;
+    
+    _layoutInfo = newLayoutInfo;
 }
 
 - (CGSize)collectionViewContentSize
@@ -121,20 +179,41 @@
     CGSize contentSize = self.collectionView.frame.size;
     NSUInteger columnIndex = [self longestColumnIndex];
     CGFloat height = [self.columnHeights[columnIndex] floatValue];
-    contentSize.height = height - self.interitemSpacing + self.sectionInset.bottom;
+    contentSize.height = height - self.interitemSpacing + self.sectionInset.bottom + _headerHeight + _footerHeight;
     return contentSize;
 }
 
 - (PSUICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)path
 {
-    return (self.itemAttributes)[path.item];
+    return _layoutInfo[WaterfallLayoutElementKindCell][path];
+}
+
+- (PSUICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    
+    PSUICollectionViewLayoutAttributes *layoutAttributes = nil;
+    
+    if (kind == PSTCollectionElementKindSectionHeader) {
+        layoutAttributes = _layoutInfo[PSTCollectionElementKindSectionHeader][indexPath];
+    } else if (kind == PSTCollectionElementKindSectionFooter) {
+        layoutAttributes = _layoutInfo[PSTCollectionElementKindSectionFooter][indexPath];
+    }
+    
+    return layoutAttributes;
 }
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
 {
-    return [self.itemAttributes filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(PSUICollectionViewLayoutAttributes *evaluatedObject, NSDictionary *bindings) {
-        return CGRectIntersectsRect(rect, [evaluatedObject frame]);
-    }]];
+    NSMutableArray *allAttributes = [NSMutableArray arrayWithCapacity:self.layoutInfo.count];
+    
+    [self.layoutInfo enumerateKeysAndObjectsUsingBlock:^(NSString *elementIdentifier, NSDictionary *elementsInfo, BOOL *stop) {
+        [elementsInfo enumerateKeysAndObjectsUsingBlock:^(NSIndexPath *indexPath, UICollectionViewLayoutAttributes *attributes, BOOL *innerStop) {
+            if (CGRectIntersectsRect(rect, attributes.frame)) {
+                [allAttributes addObject:attributes];
+            }
+        }];
+    }];
+    
+    return allAttributes;
 }
 
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
