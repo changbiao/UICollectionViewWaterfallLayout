@@ -124,7 +124,7 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
         CGFloat xOffset = _sectionInset.left + (_itemWidth + _interitemSpacing) * columnIndex;
 
         CGFloat yOffset = [(_columnHeights[columnIndex]) floatValue];
-        if (indexPath.item == 0 || indexPath.item == 1) {
+        if (indexPath.item < _columnCount) {
             yOffset += _headerHeight;
         }
         
