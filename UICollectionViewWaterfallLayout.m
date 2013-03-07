@@ -155,7 +155,7 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
             
             footerAttributes.frame = (CGRect) {
                 0.0,
-                self.collectionViewContentSize.height - (_footerHeight * 2),
+                self.collectionViewContentSize.height - _footerHeight,
                 self.collectionViewContentSize.width,
                 _footerHeight
             };
@@ -179,7 +179,7 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
     CGSize contentSize = self.collectionView.frame.size;
     NSUInteger columnIndex = [self longestColumnIndex];
     CGFloat height = [self.columnHeights[columnIndex] floatValue];
-    contentSize.height = height - self.interitemSpacing + self.sectionInset.bottom + _headerHeight + _footerHeight;
+    contentSize.height = height - self.interitemSpacing + self.sectionInset.bottom + _footerHeight;
     return contentSize;
 }
 
