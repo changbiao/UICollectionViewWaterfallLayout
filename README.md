@@ -15,28 +15,41 @@ Prerequisite
 * ARC
 * Xcode 4.4+, which supports literals syntax.
 * iOS 6+, or
-* iOS 5 and below, with [PSTUICollectionView][1].
+* iOS 4.x/5.x, with [PSTUICollectionView][1].
 
 How to Use
 ----------
+Read the demo codes for detail information.
+
 #### Step 1
 There are four properties for you to set up.
 
-    @property (nonatomic, weak) id<UICollectionViewDelegateWaterfallLayout> delegate;
-    @property (nonatomic, assign) NSUInteger columnCount; // How many columns
-    @property (nonatomic, assign) CGFloat itemWidth; // Width for every column
-    @property (nonatomic, assign) UIEdgeInsets sectionInset; // The margins used to lay out content in a section
+```objc
+@property (nonatomic, weak) id<UICollectionViewDelegateWaterfallLayout> delegate;
+@property (nonatomic, assign) NSUInteger columnCount; // How many columns
+@property (nonatomic, assign) CGFloat itemWidth; // Width for every column
+@property (nonatomic, assign) UIEdgeInsets sectionInset; // The margins used to lay out content in a section
+```
 
 It's your responsibility to set up `delegate`, `columnCount`, and `itemWidth`, they are required. But `sectionInset` is optional.
 
 #### Step 2
 And you also need to implement one method in your delegate for the `UICollectionViewDelegateWaterfallLayout` protocol.
 
-    - (CGFloat)collectionView:(UICollectionView *)collectionView
-                       layout:(UICollectionViewWaterfallLayout *)collectionViewLayout
-     heightForItemAtIndexPath:(NSIndexPath *)indexPath;
+```objc
+- (CGFloat)collectionView:(UICollectionView *)collectionView
+                   layout:(UICollectionViewWaterfallLayout *)collectionViewLayout
+ heightForItemAtIndexPath:(NSIndexPath *)indexPath;
+```
 
-**Then you are done! Easy, right?**
+#### Step 3 (Optional)
+If you need to support iOS 4.x/5.x and you have installed [PSTUICollectionView][1], then you **NEED** to modify some codes.
+
+Quoted from [PSTUICollectionView][1] README file:
+> **If you want to have PSTCollectionView on iOS4.3/5.x and UICollectionView on iOS6, use PSUICollectionView (basically add PS on any UICollectionView* class to get auto-support for older iOS versions)**
+> If you always want to use PSTCollectionView, use PSTCollectionView as class names. (replace the UI with PST)
+
+*That's all! Easy, right?*
 
 Limitation
 ----------
