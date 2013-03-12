@@ -99,6 +99,7 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
     [super prepareLayout];
 
     _itemCount = [[self collectionView] numberOfItemsInSection:0];
+    NSUInteger sections = [self.collectionView numberOfSections];
     
     NSMutableDictionary *newLayoutInfo = [NSMutableDictionary dictionary];
     NSMutableDictionary *cellLayoutAttributes = [NSMutableDictionary dictionary];
@@ -130,7 +131,7 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
         
         UICollectionViewWaterfallLayoutAttributes *attributes = [UICollectionViewWaterfallLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
         
-        attributes.frame = CGRectMake(xOffset, yOffset, self.itemWidth, itemHeight);
+        attributes.frame = CGRectMake(xOffset, (sections == 2 && _itemCount == 1) ? 0.0 : yOffset, (sections == 2 && _itemCount == 1) ? self.collectionViewContentSize.width : self.itemWidth, itemHeight);
         attributes.columnIndex = columnIndex;
         
         cellLayoutAttributes[indexPath] = attributes;
