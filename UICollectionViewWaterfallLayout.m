@@ -17,6 +17,13 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
 @end
 
 @implementation UICollectionViewWaterfallLayoutAttributes
+
+- (id)copyWithZone:(NSZone *)zone {
+    UICollectionViewWaterfallLayoutAttributes *newAttributes = [super copyWithZone:zone];
+    newAttributes.columnIndex = self.columnIndex;
+    return newAttributes;
+}
+
 @end
 
 @implementation UICollectionViewWaterfallLayout
