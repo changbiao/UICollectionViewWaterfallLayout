@@ -6,16 +6,15 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "PSTCollectionView.h"
 
 @class UICollectionViewWaterfallLayout;
 
-@protocol UICollectionViewDelegateWaterfallLayout <PSUICollectionViewDelegate>
+@protocol UICollectionViewDelegateWaterfallLayout <UICollectionViewDelegate>
 @required
-- (CGFloat)collectionView:(PSTCollectionView *)collectionView layout:(UICollectionViewWaterfallLayout *)collectionViewLayout heightForItemAtIndexPath:(NSIndexPath *)indexPath;
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewWaterfallLayout *)collectionViewLayout heightForItemAtIndexPath:(NSIndexPath *)indexPath;
 @end
 
-@interface UICollectionViewWaterfallLayout : PSUICollectionViewLayout
+@interface UICollectionViewWaterfallLayout : UICollectionViewLayout
 @property (nonatomic, weak) id<UICollectionViewDelegateWaterfallLayout> delegate;
 @property (nonatomic, assign) NSUInteger columnCount; // How many columns
 @property (nonatomic, assign) CGFloat itemWidth; // Width for every column
@@ -24,7 +23,7 @@
 @property (nonatomic) CGFloat footerHeight;
 @end
 
-@interface UICollectionViewWaterfallLayoutAttributes : PSUICollectionViewLayoutAttributes
+@interface UICollectionViewWaterfallLayoutAttributes : UICollectionViewLayoutAttributes
 
 @property (nonatomic, assign) NSUInteger columnIndex;
 

@@ -146,7 +146,7 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
 
         // This is the header
         if (indexPath.item == 0) {
-            PSUICollectionViewLayoutAttributes *headerAttributes = [PSUICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:PSTCollectionElementKindSectionHeader withIndexPath:indexPath];
+            UICollectionViewLayoutAttributes *headerAttributes = [UICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader withIndexPath:indexPath];
             
             headerAttributes.frame = (CGRect) {
                 0.0,
@@ -159,7 +159,7 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
         
         // This is the footer
         if (indexPath.item == _itemCount - 1) {
-            PSUICollectionViewLayoutAttributes *footerAttributes = [PSUICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:PSTCollectionElementKindSectionFooter withIndexPath:indexPath];
+            UICollectionViewLayoutAttributes *footerAttributes = [UICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionFooter withIndexPath:indexPath];
             
             footerAttributes.frame = (CGRect) {
                 0.0,
@@ -172,8 +172,8 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
     }
     
     newLayoutInfo[WaterfallLayoutElementKindCell] = cellLayoutAttributes;
-    newLayoutInfo[PSTCollectionElementKindSectionHeader] = headerLayoutAttributes;
-    newLayoutInfo[PSTCollectionElementKindSectionFooter] = footerLayoutAttributes;
+    newLayoutInfo[UICollectionElementKindSectionHeader] = headerLayoutAttributes;
+    newLayoutInfo[UICollectionElementKindSectionFooter] = footerLayoutAttributes;
     
     _layoutInfo = newLayoutInfo;
 }
@@ -191,19 +191,19 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
     return contentSize;
 }
 
-- (PSUICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)path
+- (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)path
 {
     return _layoutInfo[WaterfallLayoutElementKindCell][path];
 }
 
-- (PSUICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+- (UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     
-    PSUICollectionViewLayoutAttributes *layoutAttributes = nil;
+    UICollectionViewLayoutAttributes *layoutAttributes = nil;
     
-    if (kind == PSTCollectionElementKindSectionHeader) {
-        layoutAttributes = _layoutInfo[PSTCollectionElementKindSectionHeader][indexPath];
-    } else if (kind == PSTCollectionElementKindSectionFooter) {
-        layoutAttributes = _layoutInfo[PSTCollectionElementKindSectionFooter][indexPath];
+    if (kind == UICollectionElementKindSectionHeader) {
+        layoutAttributes = _layoutInfo[UICollectionElementKindSectionHeader][indexPath];
+    } else if (kind == UICollectionElementKindSectionFooter) {
+        layoutAttributes = _layoutInfo[UICollectionElementKindSectionFooter][indexPath];
     }
     
     return layoutAttributes;
