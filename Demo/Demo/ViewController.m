@@ -19,13 +19,20 @@
 
 @implementation ViewController
 
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        self.cellWidth = CELL_WIDTH;        // Default if not setting runtime attribute
+    }
+    return self;
+}
+
 #pragma mark - Accessors
 - (UICollectionView *)collectionView
 {
     if (!_collectionView) {
         UICollectionViewWaterfallLayout *layout = [[UICollectionViewWaterfallLayout alloc] init];
-        layout.itemWidth = CELL_WIDTH;
-        layout.columnCount = self.view.bounds.size.width / CELL_WIDTH;
+
         layout.sectionInset = UIEdgeInsetsMake(9, 9, 9, 9);
         layout.delegate = self;
 
@@ -65,18 +72,32 @@
     [self.view addSubview:self.collectionView];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self updateLayout];
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+                                         duration:(NSTimeInterval)duration
+{
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation
+                                            duration:duration];
+    [self updateLayout];
+}
+
+- (void)updateLayout
 {
     UICollectionViewWaterfallLayout *layout =
     (UICollectionViewWaterfallLayout *)self.collectionView.collectionViewLayout;
-    layout.columnCount = self.collectionView.bounds.size.width / CELL_WIDTH;
-    layout.itemWidth = CELL_WIDTH;
+    layout.columnCount = self.collectionView.bounds.size.width / self.cellWidth;
+    layout.itemWidth = self.cellWidth;
 }
 
 #pragma mark - UICollectionViewDataSource
