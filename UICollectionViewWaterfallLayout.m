@@ -122,9 +122,23 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
         [_columnHeights addObject:@(_sectionInset.top)];
     }
 
+	// layout the header
+	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:0 inSection:0];
+	if (_headerHeight > 0) {
+		UICollectionViewLayoutAttributes *headerAttributes = [UICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader withIndexPath:indexPath];
+		
+		headerAttributes.frame = (CGRect) {
+			0.0,
+			0.0,
+			self.collectionViewContentSize.width,
+			_headerHeight
+		};
+		headerLayoutAttributes[indexPath] = headerAttributes;
+	}
+
     // Item will be put into shortest column.
     for (NSInteger idx = 0; idx < _itemCount; idx++) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:idx inSection:0];
+        indexPath = [NSIndexPath indexPathForItem:idx inSection:0];
         CGFloat itemHeight = [self.delegate collectionView:self.collectionView
                                                     layout:self
                                   heightForItemAtIndexPath:indexPath];
@@ -144,32 +158,20 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
         cellLayoutAttributes[indexPath] = attributes;
         _columnHeights[columnIndex] = @(yOffset + itemHeight + _interitemSpacing);
 
-        // This is the header
-        if (indexPath.item == 0) {
-            UICollectionViewLayoutAttributes *headerAttributes = [UICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader withIndexPath:indexPath];
-            
-            headerAttributes.frame = (CGRect) {
-                0.0,
-                0.0,
-                self.collectionViewContentSize.width,
-                _headerHeight
-            };
-            headerLayoutAttributes[indexPath] = headerAttributes;
-        }
         
-        // This is the footer
-        if (indexPath.item == _itemCount - 1) {
-            UICollectionViewLayoutAttributes *footerAttributes = [UICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionFooter withIndexPath:indexPath];
-            
-            footerAttributes.frame = (CGRect) {
-                0.0,
-                self.collectionViewContentSize.height - _footerHeight,
-                self.collectionViewContentSize.width,
-                _footerHeight
-            };
-            footerLayoutAttributes[indexPath] = footerAttributes;
-        }
     }
+	// layout the footer
+	if (_footerHeight > 0.0) {
+		UICollectionViewLayoutAttributes *footerAttributes = [UICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionFooter withIndexPath:indexPath];
+		
+		footerAttributes.frame = (CGRect) {
+			0.0,
+			self.collectionViewContentSize.height - _footerHeight,
+			self.collectionViewContentSize.width,
+			_footerHeight
+		};
+		footerLayoutAttributes[indexPath] = footerAttributes;
+	}
     
     newLayoutInfo[WaterfallLayoutElementKindCell] = cellLayoutAttributes;
     newLayoutInfo[UICollectionElementKindSectionHeader] = headerLayoutAttributes;
@@ -180,14 +182,16 @@ static NSString *const WaterfallLayoutElementKindCell = @"WaterfallLayoutElement
 
 - (CGSize)collectionViewContentSize
 {
-    if (self.itemCount == 0) {
-        return CGSizeZero;
+    CGSize contentSize = self.collectionView.frame.size;
+    
+	if (self.itemCount == 0) {
+		contentSize.height = self.sectionInset.top + _headerHeight + _footerHeight + self.sectionInset.bottom;
+        return contentSize;
     }
 
-    CGSize contentSize = self.collectionView.frame.size;
     NSUInteger columnIndex = [self longestColumnIndex];
     CGFloat height = [self.columnHeights[columnIndex] floatValue];
-    contentSize.height = height - self.interitemSpacing + self.sectionInset.bottom + _footerHeight;
+    contentSize.height = self.sectionInset.top + _headerHeight + height - self.interitemSpacing + _footerHeight + self.sectionInset.bottom;
     return contentSize;
 }
 
